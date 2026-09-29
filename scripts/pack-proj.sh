@@ -52,7 +52,7 @@ find . \
         -name .direnv -o \
         -name .ipynb_checkpoints -o \
         -name .venv -o \
-        -name scripts -o \
+        # -name scripts -o \
         -name venv -o \
         -name env -o \
         -name __pycache__ -o \
@@ -101,6 +101,7 @@ find . \
         ! -name ".env.*" \
         ! -name "project_snapshot.txt" \
         ! -name "pack-proj.sh" \
+        ! -name "push.sh" \
         ! -name "uv.lock" \
         ! -name "*.cfg" \
         -exec sh -c 'echo "--- $1 ---"; cat "$1"' _ {} \; \

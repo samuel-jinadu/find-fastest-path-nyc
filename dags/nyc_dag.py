@@ -1,5 +1,7 @@
 import io
 import json
+import ast
+import os
 
 import geopandas
 import pandas as pd
@@ -34,6 +36,7 @@ with DAG(
             string_data=json.dumps(data),
             key=f"raw/citibike/{data_interval_start.strftime("%Y%m%dT%H%M%S")}.json",
             bucket_name="datalake",
+            replace=True
         )
 
     download_citi_bike_data = PythonOperator(
@@ -53,7 +56,7 @@ with DAG(
             response = requests.get(f"{url}/{filename}")
             s3_key = f"raw/taxi/{filename}"
             try:
-                s3_hook.load_string(string_data=response.text, key=s3_key, bucket_name="datalake")
+                s3_hook.load_string(string_data=response.text, key=s3_key, bucket_name="datalake", replace=True)
                 print(f"Uploaded {s3_key} to MinIO.")
                 exported_files.append(s3_key)
             except ValueError:
@@ -76,7 +79,7 @@ with DAG(
 
         if isinstance(paths, str):
             if paths.startswith("[") and paths.endswith("]"):
-                paths = eval(paths)
+                paths = ast.literal_eval(paths)
             else:
                 paths = [paths]
 
@@ -92,9 +95,24 @@ with DAG(
 
     def transform_citi_bike_data(df):
         # Map citi bike lat,lon coordinates to taxi zone ids
-        taxi_zones = geopandas.read_file("https://d37ci6vzurychx.cloudfront.net/misc/taxi_zones.zip").to_crs(
-            "EPSG:4326"
-        )
+        import io
+        import requests
+
+        TAXI_ZONES_URL = "https://d37ci6vzurychx.cloudfront.net/misc/taxi_zones.zip"
+        TAXI_ZONES_ZIP = "/tmp/taxi_zones.zip"
+        TAXI_ZONES_DIR = "/tmp/taxi_zones"
+
+        if not os.path.exists(TAXI_ZONES_ZIP):
+            response = requests.get(TAXI_ZONES_URL, timeout=60)
+            response.raise_for_status()
+            with open(TAXI_ZONES_ZIP, "wb") as f:
+                f.write(response.content)
+
+        if not os.path.exists(TAXI_ZONES_DIR):
+            with zipfile.ZipFile(TAXI_ZONES_ZIP) as zf:
+                zf.extractall(TAXI_ZONES_DIR)
+
+        taxi_zones = geopandas.read_file(f"{TAXI_ZONES_DIR}/taxi_zones/taxi_zones.shp").to_crs("EPSG:4326")
         start_gdf = geopandas.GeoDataFrame(
             df,
             crs="EPSG:4326",
