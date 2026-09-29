@@ -60,9 +60,10 @@ services:
       - "5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U taxi -d tlctriprecords"]
-      interval: 5s
+      interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 10
+      start_period: 60s
 
   citibike_api:
     image: ghcr.io/samuel-jinadu/nyc-citibike_api:latest
@@ -85,9 +86,10 @@ services:
       - "5434:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U citi -d citibike"]
-      interval: 5s
+      interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 10
+      start_period: 60s
 
   minio:
     image: pgsty/minio:RELEASE.2026-04-17T00-00-00Z
@@ -108,7 +110,7 @@ services:
       retries: 3
 
   minio_init:
-    image: pgsty/mcli:latest
+    image: pgsty/mc:latest
     depends_on:
       - minio
     entrypoint: >
@@ -132,9 +134,11 @@ services:
       - "5435:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
+      interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 10
+      start_period: 60s
+    restart: always
 
   nyc_transportation_api:
     image: ghcr.io/samuel-jinadu/nyc-nyc_transportation_api:latest
