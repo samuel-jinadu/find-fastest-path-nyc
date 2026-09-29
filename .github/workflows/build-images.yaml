@@ -1,0 +1,52 @@
+name: Build and Push Images to GHCR
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'airflow/**'
+      - 'services/**'
+      - '.github/workflows/build-images.yml'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - image: airflow
+            context: ./airflow
+          - image: taxi_db
+            context: ./services/taxi_db
+          - image: citibike_db
+            context: ./services/citibike_db
+          - image: taxi_fileserver
+            context: ./services/taxi_fileserver
+          - image: citibike_api
+            context: ./services/citibike_api
+          - image: nyc_transportation_api
+            context: ./services/nyc_transportation_api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/nyc-${{ matrix.image }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
