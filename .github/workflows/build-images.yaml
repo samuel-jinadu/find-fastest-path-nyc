@@ -20,7 +20,8 @@ jobs:
       matrix:
         include:
           - image: airflow
-            context: ./airflow
+            context: .
+            file: ./airflow/Dockerfile
           - image: taxi_db
             context: ./services/taxi_db
           - image: citibike_db
