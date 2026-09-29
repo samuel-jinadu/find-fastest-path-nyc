@@ -47,6 +47,7 @@ jobs:
       - uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.context }}
+          file: ${{ matrix.file || 'Dockerfile' }}
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/nyc-${{ matrix.image }}:latest
           cache-from: type=gha
