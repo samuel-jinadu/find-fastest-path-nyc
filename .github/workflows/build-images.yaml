@@ -24,14 +24,19 @@ jobs:
             file: ./airflow/Dockerfile
           - image: taxi_db
             context: ./services/taxi_db
+            file: ./services/taxi_db/Dockerfile
           - image: citibike_db
             context: ./services/citibike_db
+            file: ./services/citibike_db/Dockerfile
           - image: taxi_fileserver
             context: ./services/taxi_fileserver
+            file: ./services/taxi_fileserver/Dockerfile
           - image: citibike_api
             context: ./services/citibike_api
+            file: ./services/citibike_api/Dockerfile
           - image: nyc_transportation_api
             context: ./services/nyc_transportation_api
+            file: ./services/nyc_transportation_api/Dockerfile
 
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +52,7 @@ jobs:
       - uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.context }}
-          file: ${{ matrix.file || 'Dockerfile' }}
+          file: ${{ matrix.file }}
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/nyc-${{ matrix.image }}:latest
           cache-from: type=gha
