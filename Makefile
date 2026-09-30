@@ -33,3 +33,11 @@ build_nyc_transportation_api: ## Build NYC Transportation API
 
 .PHONY: build_all
 build_all: build_citibike build_taxi build_nyc_transportation_api ## Build all Docker images (warning: takes long!)
+
+.PHONY: test
+test:
+	docker compose run --rm \
+	  -e PIP_CACHE_DIR=/tmp/.cache/pip \
+	  -e PYTHONPATH=/tmp/pylibs \
+	  --entrypoint bash airflow-cli -c \
+	  "pip install -q --target /tmp/pylibs pytest==8.3.2 pytest-mock==3.14.0 && python -m pytest tests/ -v"

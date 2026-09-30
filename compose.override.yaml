@@ -16,7 +16,10 @@ x-airflow-common:
     PYTHONPATH: /opt/airflow/nyctransport/src
   volumes:
     - ./src:/opt/airflow/nyctransport/src
-
+    - ./setup.py:/opt/airflow/nyctransport/setup.py
+    - ./tests:/opt/airflow/tests
+    - ./pytest.ini:/opt/airflow/pytest.ini
+    - ./requirements-dev.txt:/opt/airflow/nyctransport/requirements-dev.txt
 services:
   airflow-apiserver:
     <<: *airflow-common

@@ -55,7 +55,7 @@ class MinioPandasToPostgres(BaseOperator):
         logging.info("Read DataFrame with shape: %s.", df.shape)
 
         engine = PostgresHook(postgres_conn_id=self._postgres_conn_id).get_sqlalchemy_engine()
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             conn.execute(
                 f"DELETE FROM {self._postgres_table} "
                 f"WHERE airflow_execution_date='{context['data_interval_start']}';"
