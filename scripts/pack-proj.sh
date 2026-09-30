@@ -52,7 +52,6 @@ find . \
         -name .direnv -o \
         -name .ipynb_checkpoints -o \
         -name .venv -o \
-        # -name scripts -o \
         -name venv -o \
         -name env -o \
         -name __pycache__ -o \

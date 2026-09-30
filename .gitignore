@@ -1,5 +1,5 @@
 scripts/push.sh
-scripts
+project_snapshot.txt
 
 # ─── Airflow ────────────────────────────────────────────────────────────────
 # Runtime artifacts that get regenerated every time the stack starts.

@@ -6,6 +6,8 @@ import os
 import geopandas
 import pandas as pd
 import pendulum
+from email.utils import parsedate_to_datetime      # <-- add
+from datetime import datetime, timezone 
 import requests
 from airflow.hooks.base import BaseHook
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
@@ -16,6 +18,7 @@ from minio import Minio
 from nyctransport.operators.pandas_operator import PandasOperator
 from nyctransport.operators.s3_to_postgres import MinioPandasToPostgres
 from requests.auth import HTTPBasicAuth
+from airflow.exceptions import AirflowSkipException
 
 with DAG(
     dag_id="nyc_dag",
@@ -43,25 +46,36 @@ with DAG(
         task_id="download_citi_bike_data", python_callable=_download_citi_bike_data
     )
 
-    def _download_taxi_data():
+    def _download_taxi_data(data_interval_start, data_interval_end, **_):
         taxi_conn = BaseHook.get_connection(conn_id="taxi")
         s3_hook = S3Hook(aws_conn_id="s3")
 
         url = f"http://{taxi_conn.host}"
-        response = requests.get(url)
+        response = requests.get(url, timeout=(5, 30))
+        response.raise_for_status()
         files = response.json()
 
-        exported_files = []
-        for filename in [f["name"] for f in files]:
-            response = requests.get(f"{url}/{filename}")
-            s3_key = f"raw/taxi/{filename}"
-            try:
-                s3_hook.load_string(string_data=response.text, key=s3_key, bucket_name="datalake", replace=True)
-                print(f"Uploaded {s3_key} to MinIO.")
-                exported_files.append(s3_key)
-            except ValueError:
-                print(f"File {s3_key} already exists.")
+        start = data_interval_start.timestamp()
+        end = data_interval_end.timestamp()
 
+        exported_files = []
+        for f in files:
+            # mtime = pendulum.parse(f["mtime"]).timestamp()
+            mtime_dt = parsedate_to_datetime(f["mtime"])
+            if mtime_dt.tzinfo is None:
+                mtime_dt = mtime_dt.replace(tzinfo=timezone.utc)
+            mtime = mtime_dt.timestamp()
+            if not (start <= mtime < end):
+                continue
+            resp = requests.get(f"{url}/{f['name']}", timeout=(5, 30))
+            resp.raise_for_status()
+            key = f"raw/taxi/{f['name']}"
+            s3_hook.load_string(resp.text, key=key,
+                                bucket_name="datalake", replace=True)
+            exported_files.append(key)
+
+        if not exported_files:
+            raise AirflowSkipException("No taxi files for this interval.")
         return exported_files
 
     download_taxi_data = PythonOperator(
@@ -97,6 +111,7 @@ with DAG(
         # Map citi bike lat,lon coordinates to taxi zone ids
         import io
         import requests
+        import zipfile
 
         TAXI_ZONES_URL = "https://d37ci6vzurychx.cloudfront.net/misc/taxi_zones.zip"
         TAXI_ZONES_ZIP = "/tmp/taxi_zones.zip"
