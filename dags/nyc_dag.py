@@ -9,7 +9,7 @@ import pendulum
 from email.utils import parsedate_to_datetime      # <-- add
 from datetime import datetime, timezone 
 import requests
-from airflow.hooks.base import BaseHook
+from airflow.sdk.bases.hook import BaseHook
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
@@ -70,8 +70,7 @@ with DAG(
             resp = requests.get(f"{url}/{f['name']}", timeout=(5, 30))
             resp.raise_for_status()
             key = f"raw/taxi/{f['name']}"
-            s3_hook.load_string(resp.text, key=key,
-                                bucket_name="datalake", replace=True)
+            s3_hook.load_string(resp.text, key=key, bucket_name="datalake", replace=True)
             exported_files.append(key)
 
         if not exported_files:
