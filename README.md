@@ -1,5 +1,7 @@
 # NYC Transportation — Fastest Mode Between Two Zones
 
+> **🔗 [View the Interactive README →](https://samuel-jinadu.github.io/find-fastest-path-nyc/)**
+
 > **Solves:** How do you build a *trustworthy, incrementally-updated comparison dataset* from two sources that (a) speak different protocols, (b) measure distance in different units, (c) have asymmetric retention guarantees, and (d) cannot be backfilled the same way? The NYC "taxi vs. Citi Bike" question is the payload; the data engineering problem is heterogeneous ingestion, conformance, and idempotent serving.
 
 ---
