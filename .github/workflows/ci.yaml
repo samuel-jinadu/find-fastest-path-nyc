@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  dag-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run DAG integrity test inside the published Airflow image
+        run: |
+          docker run --rm \
+            -v "$PWD/dags:/opt/airflow/dags" \
+            -v "$PWD/tests:/opt/airflow/tests" \
+            -v "$PWD/pytest.ini:/opt/airflow/pytest.ini" \
+            -e AIRFLOW__CORE__LOAD_EXAMPLES=false \
+            -e AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true \
+            -w /opt/airflow \
+            ghcr.io/${{ github.repository_owner }}/nyc-airflow:latest \
+            python -m pytest tests/ -v

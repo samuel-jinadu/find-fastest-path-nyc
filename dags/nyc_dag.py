@@ -65,7 +65,7 @@ with DAG(
             if mtime_dt.tzinfo is None:
                 mtime_dt = mtime_dt.replace(tzinfo=timezone.utc)
             mtime = mtime_dt.timestamp()
-            if not (start <= mtime < end):
+            if not (start < mtime <= end):
                 continue
             resp = requests.get(f"{url}/{f['name']}", timeout=(5, 30))
             resp.raise_for_status()

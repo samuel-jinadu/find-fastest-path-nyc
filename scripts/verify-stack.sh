@@ -11,7 +11,7 @@ echo "== MinIO bucket exists =="
 docker compose exec -T airflow-worker python -c "
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 h = S3Hook(aws_conn_id='s3')
-print('datalake buckets:', h.list_buckets()[:5] if hasattr(h, 'list_buckets') else 'n/a')
+print('datalake exists:', h.check_for_bucket('datalake'))
 "
 
 echo "== Citi Bike API (expect 401) =="
