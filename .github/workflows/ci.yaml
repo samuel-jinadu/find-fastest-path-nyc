@@ -2,7 +2,25 @@ name: CI
 on:
   push:
     branches: [main]
+    paths:
+      - 'dags/**'
+      - 'tests/**'
+      - 'pytest.ini'
+      - 'src/**'
+      - 'airflow/**'
+      - 'setup.py'
+      - 'requirements*.txt'
+      - '.github/workflows/ci.yaml'
   pull_request:
+    paths:
+      - 'dags/**'
+      - 'tests/**'
+      - 'pytest.ini'
+      - 'src/**'
+      - 'airflow/**'
+      - 'setup.py'
+      - 'requirements*.txt'
+      - '.github/workflows/ci.yaml'
 
 jobs:
   dag-integrity:
