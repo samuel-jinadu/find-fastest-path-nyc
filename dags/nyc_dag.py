@@ -75,6 +75,7 @@ with DAG(
 
         if not exported_files:
             raise AirflowSkipException("No taxi files for this interval.")
+    
         return exported_files
 
     download_taxi_data = PythonOperator(
@@ -108,8 +109,6 @@ with DAG(
 
     def transform_citi_bike_data(df):
         # Map citi bike lat,lon coordinates to taxi zone ids
-        import io
-        import requests
         import zipfile
 
         TAXI_ZONES_URL = "https://d37ci6vzurychx.cloudfront.net/misc/taxi_zones.zip"
