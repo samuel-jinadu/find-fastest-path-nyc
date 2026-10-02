@@ -1,676 +1,440 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NYC Transportation — DE README</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NYC Transportation — Data Engineering README</title>
 <style>
-  /* ===================== THEME TOKENS ===================== */
   :root{
-    --bg:#0a0e17; --bg-soft:#111726; --panel:#151c2c; --panel-2:#1b2436;
-    --border:#26314a; --text:#e7edf9; --muted:#8fa0bf;
-    --accent:#38bdf8; --accent-2:#fbbf24; --green:#34d399;
-    --red:#f87171; --purple:#a78bfa; --pink:#f472b6;
-    --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;
+    --bg:#080c14;
+    --panel:#111827;
+    --panel2:#161f31;
+    --border:#243049;
+    --text:#e8eefb;
+    --muted:#94a5c2;
+    --accent:#38bdf8;
+    --purple:#a78bfa;
+    --green:#34d399;
+    --red:#f87171;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    --r:12px;
-  }
-  html[data-theme="light"]{
-    --bg:#f5f7fb; --bg-soft:#ffffff; --panel:#ffffff; --panel-2:#f0f4fa;
-    --border:#d8e0ee; --text:#131a29; --muted:#5a6a86;
-    --accent:#0284c7; --accent-2:#b45309; --green:#059669;
-    --red:#dc2626; --purple:#7c3aed; --pink:#db2777;
   }
 
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;overflow:hidden}
+  /* base font: normal size, only shrinks on very short viewports */
+  html{ font-size: clamp(12.5px, 2.05vh, 17px); }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+
   body{
-    background:var(--bg);color:var(--text);font-family:var(--sans);
-    font-size:14px;line-height:1.5;display:flex;flex-direction:column;
+    background:
+      radial-gradient(900px 380px at 8% -12%, rgba(56,189,248,.10), transparent 62%),
+      radial-gradient(760px 340px at 96% 108%, rgba(167,139,250,.10), transparent 62%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:1rem;
+    line-height:1.45;
     -webkit-font-smoothing:antialiased;
+    display:grid;
+    grid-template-rows:auto auto minmax(0,1fr) auto;
+    height:100vh;
+    overflow:hidden;
   }
-  a{color:var(--accent);text-decoration:none}
-  a:hover{text-decoration:underline}
-  code{font-family:var(--mono);font-size:.88em;color:var(--accent-2)}
 
-  /* ===================== TOPBAR ===================== */
+  /* ============ HEADER ============ */
   header{
-    flex:0 0 auto;display:flex;align-items:center;gap:14px;
-    padding:9px 18px;border-bottom:1px solid var(--border);
-    background:var(--bg-soft);
+    display:flex; align-items:center; gap:1rem;
+    padding:1rem 1.6rem .7rem;
   }
-  .brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:.2px;font-size:14px}
-  .brand .dot{
-    width:9px;height:9px;border-radius:50%;
+  .dot{
+    width:.8rem;height:.8rem;border-radius:50%;flex:0 0 auto;
     background:linear-gradient(135deg,var(--accent),var(--purple));
-    box-shadow:0 0 10px var(--accent);
+    box-shadow:0 0 14px rgba(56,189,248,.8);
+    animation:pulse 2.6s ease-in-out infinite;
   }
-  .brand small{display:block;font-weight:400;color:var(--muted);font-size:10px;letter-spacing:.7px;text-transform:uppercase}
-  .spacer{flex:1}
-  .pill{
-    font-size:10.5px;padding:3px 9px;border-radius:999px;
-    border:1px solid var(--border);color:var(--muted);background:var(--panel);
-    white-space:nowrap;letter-spacing:.3px;
-  }
-  .pill.attr{border-color:color-mix(in srgb,var(--purple) 45%,transparent);color:var(--purple)}
-  .icon-btn{
-    background:var(--panel);border:1px solid var(--border);color:var(--text);
-    width:30px;height:30px;border-radius:8px;cursor:pointer;
-    display:grid;place-items:center;font-size:14px;transition:.18s;
-  }
-  .icon-btn:hover{border-color:var(--accent)}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.82)}}
 
-  /* ===================== SHELL ===================== */
-  .shell{
-    flex:1 1 auto;display:grid;grid-template-columns:212px minmax(0,1fr);
-    min-height:0;
+  h1{
+    font-size:1.4rem; margin:0; letter-spacing:-.02em; font-weight:700;
   }
-  nav{
-    padding:16px 10px;border-right:1px solid var(--border);
-    background:var(--bg-soft);overflow-y:auto;
-  }
-  nav h4{
-    font-size:9.5px;text-transform:uppercase;letter-spacing:1.3px;
-    color:var(--muted);margin:0 0 10px 10px;font-weight:700;
-  }
-  nav button{
-    display:block;width:100%;text-align:left;background:transparent;border:0;
-    padding:7px 11px;border-radius:8px;color:var(--muted);font-size:13px;
-    font-family:var(--sans);cursor:pointer;border-left:2px solid transparent;
-    transition:.15s;margin-bottom:2px;
-  }
-  nav button:hover{color:var(--text);background:var(--panel)}
-  nav button.active{
-    color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);
-    border-left-color:var(--accent);font-weight:600;
-  }
-  nav .navfoot{
-    margin:16px 10px 0;padding-top:12px;border-top:1px solid var(--border);
-    font-size:10.5px;color:var(--muted);line-height:1.5;
-  }
-
-  main{padding:20px 26px;min-width:0;overflow-y:auto}
-
-  /* ===================== VIEWS ===================== */
-  .view{display:none}
-  .view.active{display:block;animation:fade .25s ease}
-  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-
-  .eyebrow{
-    font-size:10px;letter-spacing:1.8px;text-transform:uppercase;
-    color:var(--accent);font-weight:700;margin-bottom:4px;
-  }
-  h1{font-size:clamp(19px,2.2vw,25px);margin:0 0 6px;letter-spacing:-.4px;line-height:1.2}
   h1 .grad{
-    background:linear-gradient(100deg,var(--accent),var(--purple) 60%,var(--pink));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
+    background:linear-gradient(95deg,var(--accent),var(--purple) 60%,#f472b6);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
   }
-  .lead{color:var(--muted);font-size:13.5px;margin:0 0 16px;max-width:96ch}
+  header .sub{
+    margin:.2rem 0 0; font-size:.92rem; color:var(--muted);
+  }
+  .spacer{ flex:1; }
+  .credit-chip{
+    font-size:.8rem; color:var(--muted); text-align:right; line-height:1.4;
+    border:1px solid var(--border); background:var(--panel);
+    border-radius:.7rem; padding:.5rem .8rem; white-space:nowrap;
+  }
+  .credit-chip b{ color:var(--accent); }
 
-  /* ===================== GRIDS / CARDS ===================== */
-  .grid{display:grid;gap:11px}
-  .g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-  .g3{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
-  .g4{grid-template-columns:repeat(auto-fit,minmax(175px,1fr))}
-
-  .card{
-    background:var(--panel);border:1px solid var(--border);border-radius:var(--r);
-    padding:13px 15px;position:relative;overflow:hidden;transition:.18s;
+  /* ============ SOURCE STRIP ============ */
+  .sources{
+    display:grid; grid-template-columns:1fr 1fr; gap:.8rem;
+    padding:0 1.6rem;
   }
-  .card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--border))}
-  .card .num{
-    position:absolute;top:8px;right:12px;font-size:26px;font-weight:800;
-    color:color-mix(in srgb,var(--accent) 16%,transparent);line-height:1;
+  .src{
+    background:var(--panel); border:1px solid var(--border); border-radius:.8rem;
+    padding:.6rem .9rem; display:flex; flex-direction:column; gap:.25rem;
+    transition:border-color .2s, transform .2s;
   }
-  .card .tagline{
-    font-size:9.5px;color:var(--accent);font-weight:700;letter-spacing:.8px;
-    text-transform:uppercase;margin-bottom:3px;
+  .src:hover{ transform:translateY(-1px); }
+  .src.citi:hover{ border-color:rgba(52,211,153,.55); }
+  .src.taxi:hover{ border-color:rgba(248,113,113,.55); }
+  .src-head{
+    display:flex; align-items:center; gap:.5rem; font-size:1rem; font-weight:700;
   }
-  .card h4{margin:0 0 5px;font-size:13.5px;color:var(--text)}
-  .card p{margin:0;font-size:12.3px;color:var(--muted);line-height:1.5}
-  .card p strong{color:var(--text)}
-
-  /* ===================== CALLOUT ===================== */
-  .callout{
-    border-left:3px solid var(--accent);
-    background:color-mix(in srgb,var(--accent) 8%,var(--panel));
-    padding:10px 14px;border-radius:0 10px 10px 0;margin-top:14px;
-    font-size:12.5px;color:var(--muted);line-height:1.5;
-  }
-  .callout.warn{border-left-color:var(--accent-2);background:color-mix(in srgb,var(--accent-2) 8%,var(--panel))}
-  .callout.good{border-left-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--panel))}
-  .callout strong{color:var(--text)}
-
-  /* ===================== TABLE ===================== */
-  .srctable{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:2px}
-  .srctable th,.srctable td{
-    text-align:left;padding:7px 12px;border-bottom:1px solid var(--border);
-    vertical-align:top;
-  }
-  .srctable thead th{
-    color:var(--muted);font-weight:700;font-size:10.5px;letter-spacing:1px;
-    text-transform:uppercase;border-bottom:1px solid var(--border);
-  }
-  .srctable thead th:first-child{width:130px}
-  .srctable tbody th{
-    color:var(--muted);font-weight:600;width:130px;font-size:11.5px;
-    letter-spacing:.3px;text-transform:uppercase;
-  }
-  .srctable td{color:var(--text)}
-  .srctable tr:last-child th,.srctable tr:last-child td{border-bottom:0}
-  .srctable .citicol{color:var(--green)}
-  .srctable .taxicol{color:var(--accent-2)}
+  .src-head .ico{ font-size:1.1rem; }
+  .src-facts{ font-size:.85rem; color:var(--muted); }
+  .src-facts span{ color:#c3d2ea; }
 
   .badge{
-    display:inline-block;font-size:9.5px;font-weight:700;padding:1px 7px;
-    border-radius:999px;letter-spacing:.4px;text-transform:uppercase;
+    margin-left:auto; font-size:.72rem; font-weight:800; letter-spacing:.06em;
+    text-transform:uppercase; padding:.15rem .55rem; border-radius:99px;
   }
-  .badge.ok{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green);border:1px solid color-mix(in srgb,var(--green) 35%,transparent)}
-  .badge.no{background:color-mix(in srgb,var(--red) 18%,transparent);color:var(--red);border:1px solid color-mix(in srgb,var(--red) 35%,transparent)}
+  .badge.ok{ color:var(--green); background:rgba(52,211,153,.13); border:1px solid rgba(52,211,153,.32); }
+  .badge.no{ color:var(--red); background:rgba(248,113,113,.13); border:1px solid rgba(248,113,113,.32); }
 
-  /* ===================== PIPELINE ===================== */
-  .pipeline{
-    display:flex;align-items:stretch;gap:0;
-    background:var(--panel);border:1px solid var(--border);
-    border-radius:var(--r);padding:14px;overflow-x:auto;
+  /* ============ MAIN GRID ============ */
+  main{
+    display:grid;
+    grid-template-columns:1fr 1.12fr 1.06fr;
+    gap:.9rem;
+    padding:.9rem 1.6rem;
+    min-height:0;
   }
+
+  .panel{
+    background:var(--panel); border:1px solid var(--border); border-radius:.9rem;
+    padding:.85rem 1rem .9rem;
+    display:flex; flex-direction:column; gap:.55rem;
+    min-height:0; overflow:hidden;
+  }
+
+  .panel > h2{
+    margin:0; font-size:.78rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--accent); font-weight:800;
+    display:flex; align-items:baseline; gap:.5rem; flex-wrap:wrap;
+  }
+  .panel > h2 .tag{
+    color:var(--muted); letter-spacing:0; text-transform:none; font-weight:600;
+    font-size:.82rem;
+  }
+
+  /* ---- problem cards ---- */
+  .prob{
+    display:flex; gap:.65rem; align-items:flex-start;
+    background:var(--panel2); border:1px solid var(--border); border-left:3px solid var(--border);
+    border-radius:.65rem; padding:.6rem .8rem;
+    transition:border-color .2s, background .2s, transform .2s;
+  }
+  .prob:hover, .prob.hl{
+    border-color:rgba(56,189,248,.55);
+    border-left-color:var(--accent);
+    background:rgba(56,189,248,.07);
+    transform:translateX(3px);
+  }
+  .prob .n{
+    flex:0 0 auto; font-family:var(--mono); font-size:.8rem; font-weight:700;
+    color:var(--accent); background:rgba(56,189,248,.12);
+    border-radius:.4rem; padding:.1rem .45rem; margin-top:.1rem;
+  }
+  .prob b{ font-size:.95rem; display:block; }
+  .prob p{ margin:.15rem 0 0; font-size:.85rem; color:var(--muted); line-height:1.45; }
+
+  /* ---- pipeline ---- */
+  .stages{ display:flex; flex-direction:column; }
   .stage{
-    flex:1 1 0;min-width:110px;background:var(--panel-2);
-    border:1px solid var(--border);border-radius:10px;
-    padding:11px 9px;cursor:pointer;text-align:center;transition:.18s;
+    display:flex; gap:.65rem; align-items:flex-start;
+    background:var(--panel2); border:1px solid var(--border); border-radius:.65rem;
+    padding:.6rem .8rem;
+    transition:border-color .2s, background .2s, box-shadow .2s;
   }
-  .stage:hover{border-color:var(--accent);transform:translateY(-2px)}
-  .stage.active{
-    border-color:var(--accent);
-    background:color-mix(in srgb,var(--accent) 12%,var(--panel-2));
-    box-shadow:0 0 0 1px var(--accent) inset;
+  .stage:hover, .stage.hl{
+    border-color:rgba(52,211,153,.55);
+    background:rgba(52,211,153,.06);
+    box-shadow:0 0 0 1px rgba(52,211,153,.18) inset;
   }
-  .stage .ico{font-size:18px;display:block;margin-bottom:4px}
-  .stage .nm{font-size:12.5px;font-weight:700;color:var(--text);display:block}
-  .stage .sub{font-size:10px;color:var(--muted);display:block;margin-top:2px}
-  .arrow{align-self:center;color:var(--muted);font-size:16px;padding:0 5px;flex:0 0 auto}
+  .stage .ico{ font-size:1.05rem; line-height:1.3; }
+  .stage b{ font-size:.95rem; display:block; }
+  .stage b em{
+    font-style:normal; font-weight:600; color:var(--muted); font-size:.82rem;
+  }
+  .stage p{ margin:.15rem 0 0; font-size:.85rem; color:var(--muted); line-height:1.45; }
+  .stage p strong{ color:#c3d2ea; font-weight:600; }
 
-  .stage-detail{
-    margin-top:12px;background:var(--panel-2);border:1px solid var(--border);
-    border-radius:var(--r);padding:15px 17px;min-height:150px;
+  .arrow{
+    height:1rem; display:flex; align-items:center; justify-content:center;
+    color:var(--border); font-size:.7rem; position:relative;
   }
-  .stage-detail h4{margin:0 0 6px;font-size:14px;color:var(--accent)}
-  .stage-detail p{margin:0 0 8px;font-size:12.5px;color:var(--muted);line-height:1.55}
-  .stage-detail ul{margin:0;padding-left:17px;color:var(--muted);font-size:12.2px;line-height:1.55}
-  .stage-detail li{margin-bottom:3px}
-  .stage-detail li code{color:var(--accent-2)}
+  .arrow::after{
+    content:""; position:absolute; width:.4rem; height:.4rem; border-radius:50%;
+    background:var(--accent); opacity:0;
+    animation:flow 2.4s linear infinite;
+  }
+  @keyframes flow{
+    0%{ transform:translateY(-.36rem); opacity:0; }
+    25%{ opacity:.9; }
+    75%{ opacity:.9; }
+    100%{ transform:translateY(.36rem); opacity:0; }
+  }
 
-  /* ===================== TABS ===================== */
-  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-  .tabs button{
-    background:var(--panel);border:1px solid var(--border);color:var(--muted);
-    padding:6px 14px;border-radius:9px;cursor:pointer;font-size:12.5px;
-    font-family:var(--sans);font-weight:600;transition:.15s;
+  .lake{
+    margin-top:auto;
+    font-family:var(--mono); font-size:.78rem; line-height:1.5;
+    color:#9fb3d4; background:#070b13; border:1px solid var(--border);
+    border-radius:.55rem; padding:.55rem .7rem;
   }
-  .tabs button:hover{color:var(--text)}
-  .tabs button.active{background:var(--accent);color:#04121f;border-color:var(--accent)}
-  .tabpanel{display:none}
-  .tabpanel.active{display:block;animation:fade .22s ease}
-  .tabpanel > p{margin:0 0 6px;font-size:12.8px;color:var(--muted);line-height:1.55}
-  .tabpanel > p strong{color:var(--text)}
+  .lake .c{ color:#586d8c; font-style:italic; }
 
-  /* ===================== CODE ===================== */
-  pre{
-    background:#070b13;border:1px solid var(--border);border-radius:10px;
-    padding:11px 14px;overflow:auto;font-family:var(--mono);
-    font-size:11px;line-height:1.6;color:#c9d7ee;margin:8px 0 0;
+  /* ---- mechanism cards ---- */
+  .mech{
+    background:var(--panel2); border:1px solid var(--border); border-radius:.65rem;
+    padding:.6rem .8rem;
+    transition:border-color .2s, background .2s, box-shadow .2s;
   }
-  html[data-theme="light"] pre{background:#0d1420}
-  pre .c{color:#5d7290;font-style:italic}
-  pre .k{color:#c084fc}
-  pre .s{color:#7dd3a0}
-  pre .f{color:#7cb7ff}
+  .mech:hover, .mech.hl{
+    border-color:rgba(167,139,250,.6);
+    background:rgba(167,139,250,.07);
+    box-shadow:0 0 0 1px rgba(167,139,250,.18) inset;
+  }
+  .mech b{ font-size:.95rem; display:block; }
+  .mech p{ margin:.15rem 0 0; font-size:.85rem; color:var(--muted); line-height:1.45; }
+  .mech p strong{ color:#c3d2ea; font-weight:600; }
 
-  /* ===================== CREDIT ===================== */
-  .credit{
-    background:
-      radial-gradient(600px 220px at 0% 0%, color-mix(in srgb,var(--purple) 16%,transparent), transparent 70%),
-      var(--panel);
-    border:1px solid var(--border);border-radius:var(--r);padding:22px 24px;
+  .mono{
+    font-family:var(--mono); font-size:.82em; color:#8fd4f5;
+    background:rgba(56,189,248,.10); border-radius:.25rem; padding:.05em .3em;
+    white-space:nowrap;
   }
-  .credit blockquote{
-    margin:0 0 16px;padding-left:16px;border-left:3px solid var(--purple);
-    font-size:14px;color:var(--text);font-style:italic;line-height:1.6;
-  }
-  .credit blockquote cite{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:8px}
-  .credit p{font-size:12.8px;color:var(--muted);margin:0 0 10px;line-height:1.6}
-  .credit p strong{color:var(--text)}
 
-  /* ===================== RESPONSIVE ===================== */
-  @media(max-width:860px){
-    .shell{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
-    nav{
-      display:flex;gap:4px;overflow-x:auto;border-right:0;
-      border-bottom:1px solid var(--border);padding:8px 10px;
-    }
-    nav h4,nav .navfoot{display:none}
-    nav button{width:auto;white-space:nowrap;border-left:0;border-bottom:2px solid transparent}
-    nav button.active{border-left:0;border-bottom-color:var(--accent)}
-    main{padding:16px}
-    .pill.attr{display:none}
+  /* ============ FOOTER ============ */
+  footer{
+    padding:.7rem 1.6rem .9rem;
+    font-size:.82rem; color:var(--muted); line-height:1.5;
+    border-top:1px solid var(--border);
+    display:flex; gap:.8rem; align-items:baseline;
   }
-  ::-webkit-scrollbar{width:9px;height:9px}
-  ::-webkit-scrollbar-track{background:transparent}
-  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px}
-  ::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+  footer .k{ color:var(--purple); font-weight:700; flex:0 0 auto; }
+
+  @media (max-width:1100px){
+    html{ font-size: clamp(11.5px, 1.85vh, 14px); }
+  }
 </style>
 </head>
 <body>
 
-<!-- ===================== TOPBAR ===================== -->
-<header>
-  <div class="brand">
+  <!-- ================= HEADER ================= -->
+  <header>
     <span class="dot"></span>
     <div>
-      NYC Transportation
-      <small>Data Engineering README</small>
+      <h1>Taxi vs. Citi Bike — <span class="grad">fastest mode between two zones</span></h1>
+      <p class="sub">The question is the payload. The engineering is heterogeneous ingestion, unit conformance, and idempotent serving.</p>
+    </div>
+    <div class="spacer"></div>
+    <div class="credit-chip">
+      Based on <b>Chapter 13</b><br><i>Data Pipelines with Apache Airflow, 2nd Ed.</i>
+    </div>
+  </header>
+
+  <!-- ================= SOURCES ================= -->
+  <div class="sources">
+    <div class="src citi">
+      <div class="src-head">
+        <span class="ico">🚲</span> Citi Bike API
+        <span class="badge ok">Backfillable</span>
+      </div>
+      <div class="src-facts">
+        REST + HTTP Basic · JSON list of rides · stations as <span>lat/lon</span> · <span>full year retained</span>
+      </div>
+    </div>
+    <div class="src taxi">
+      <div class="src-head">
+        <span class="ico">🚕</span> Yellow Cab fileserver
+        <span class="badge no">Not backfillable</span>
+      </div>
+      <div class="src-facts">
+        Static file share, no auth · one CSV per 15-min window · <span>taxi zone IDs</span> · <span>files deleted after 59 min</span>
+      </div>
     </div>
   </div>
-  <div class="spacer"></div>
-  <span class="pill">Airflow 3.1.2 · CeleryExecutor</span>
-  <span class="pill">MinIO · Postgres</span>
-  <span class="pill attr">Ch.13 · Manning 2026</span>
-  <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
-</header>
 
-<div class="shell">
-
-  <!-- ===================== NAV ===================== -->
-  <nav id="nav">
-    <h4>Contents</h4>
-    <button class="active" data-view="problem">01 · The problem</button>
-    <button data-view="sources">02 · The two sources</button>
-    <button data-view="pipeline">03 · The pipeline</button>
-    <button data-view="operators">04 · The operators</button>
-    <button data-view="idempotency">05 · Idempotency</button>
-    <button data-view="credit">06 · Source &amp; credit</button>
-    <div class="navfoot">
-      Raw → Processed → Serving.<br>
-      Two sources, one contract.
-    </div>
-  </nav>
-
-  <!-- ===================== MAIN ===================== -->
+  <!-- ================= MAIN ================= -->
   <main>
 
-    <!-- ---------- 01 PROBLEM ---------- -->
-    <section id="problem" class="view active">
-      <div class="eyebrow">01 — The Data Engineering Problem</div>
-      <h1>Four hard problems <span class="grad">at once</span></h1>
-      <p class="lead">
-        Two sources, both ticking every 15 minutes — otherwise as different as they can be.
-        The payload is the question; the engineering is the answer.
-      </p>
+    <!-- ---------- COLUMN 1 : PROBLEM ---------- -->
+    <section class="panel">
+      <h2>The Problem <span class="tag">— four at once</span></h2>
 
-      <div class="grid g2">
-        <div class="card">
-          <span class="num">1</span>
-          <div class="tagline">Retention</div>
-          <h4>Asymmetric loss</h4>
-          <p>Taxi files are deleted after <strong>59 minutes</strong>. A two-hour scheduler gap means that
-             window is permanently gone. Citi Bike can be recovered; taxi cannot. The pipeline cannot
-             treat them symmetrically.</p>
-        </div>
-        <div class="card">
-          <span class="num">2</span>
-          <div class="tagline">Units</div>
-          <h4>Lat/lon vs. zone IDs</h4>
-          <p>Citi Bike reports station <strong>coordinates</strong>. Taxi reports
-             <strong>taxi zone IDs</strong>. Without a reference-data join the two datasets
-             cannot be compared at all.</p>
-        </div>
-        <div class="card">
-          <span class="num">3</span>
-          <div class="tagline">Ingestion</div>
-          <h4>Two protocols</h4>
-          <p>One source is an authenticated REST API returning JSON. The other is a directory
-             listing plus per-file CSV fetches. A single <code>SimpleHttpOperator</code> will not do.</p>
-        </div>
-        <div class="card">
-          <span class="num">4</span>
-          <div class="tagline">Correctness</div>
-          <h4>Idempotent reruns</h4>
-          <p>Re-running the 14:15 interval must not duplicate rows, must not double-count, and must
-             produce the same result whether it runs once or five times.</p>
+      <div class="prob" data-prob="p1">
+        <span class="n">1</span>
+        <div>
+          <b>Asymmetric retention</b>
+          <p>Taxi files are deleted 59 minutes after they appear. A two-hour scheduler gap is permanent loss for taxi; Citi Bike can be refetched.</p>
         </div>
       </div>
 
-      <div class="callout warn">
-        <strong>The coupling that matters:</strong> because taxi retention is 59 minutes, DAG cadence
-        and scheduler uptime are tied directly to source retention. A slower schedule loses data;
-        a faster one duplicates API calls.
-      </div>
-    </section>
-
-    <!-- ---------- 02 SOURCES ---------- -->
-    <section id="sources" class="view">
-      <div class="eyebrow">02 — The Two Sources</div>
-      <h1>Two systems, <span class="grad">one contract each</span></h1>
-      <p class="lead">
-        These guarantees drive every design decision downstream — cadence, layering, and backfill.
-      </p>
-
-      <table class="srctable">
-        <thead>
-          <tr>
-            <th></th>
-            <th class="citicol">🚲 Citi Bike API</th>
-            <th class="taxicol">🚕 Yellow Cab fileserver</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th>Interface</th>
-            <td>REST — <code>GET /recent/minute/15</code></td>
-            <td>Static share — <code>GET /</code> returns a JSON listing</td>
-          </tr>
-          <tr>
-            <th>Auth</th>
-            <td>HTTP Basic (<code>citibike:cycling</code>)</td>
-            <td>None</td>
-          </tr>
-          <tr>
-            <th>Format</th>
-            <td>JSON list of ride objects</td>
-            <td>CSV — one file per 15-minute window</td>
-          </tr>
-          <tr>
-            <th>Location unit</th>
-            <td>Latitude / longitude of start &amp; end stations</td>
-            <td>Taxi zone IDs (pickup / dropoff)</td>
-          </tr>
-          <tr>
-            <th>Cadence</th>
-            <td>Request-driven; source DB updates continuously</td>
-            <td>New file every 15 min, via cron</td>
-          </tr>
-          <tr>
-            <th>Retention</th>
-            <td>Full 2023 dataset in DB, shifted to “now”</td>
-            <td><span class="badge no">Deleted after 59 min</span></td>
-          </tr>
-          <tr>
-            <th>Backfill</th>
-            <td><span class="badge ok">Possible</span> — query further back</td>
-            <td><span class="badge no">Impossible</span> beyond ~1 hour</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="callout">
-        <strong>Why this is a DE problem, not an API problem:</strong> one source is lossy and
-        unbackfillable, the other is recoverable. The pipeline must record the lossy one
-        <em>first</em> and treat both as interval-scoped rather than “whatever is there right now.”
-      </div>
-    </section>
-
-    <!-- ---------- 03 PIPELINE ---------- -->
-    <section id="pipeline" class="view">
-      <div class="eyebrow">03 — The Solution</div>
-      <h1>Raw → Processed → <span class="grad">Serving</span></h1>
-      <p class="lead">Click any stage to see what it holds and why it exists.</p>
-
-      <div class="pipeline" id="pipeline">
-        <div class="stage active" data-stage="sources">
-          <span class="ico">🌐</span><span class="nm">Sources</span><span class="sub">heterogeneous</span>
-        </div>
-        <div class="arrow">→</div>
-        <div class="stage" data-stage="raw">
-          <span class="ico">📦</span><span class="nm">Raw</span><span class="sub">MinIO · source of record</span>
-        </div>
-        <div class="arrow">→</div>
-        <div class="stage" data-stage="processed">
-          <span class="ico">🔧</span><span class="nm">Processed</span><span class="sub">conformed parquet</span>
-        </div>
-        <div class="arrow">→</div>
-        <div class="stage" data-stage="serving">
-          <span class="ico">🗄️</span><span class="nm">Serving</span><span class="sub">Postgres · idempotent</span>
+      <div class="prob" data-prob="p2">
+        <span class="n">2</span>
+        <div>
+          <b>Unit mismatch</b>
+          <p>Citi Bike reports station lat/lon. Taxi reports zone IDs. Without a reference join there is no shared key to compare on.</p>
         </div>
       </div>
 
-      <div class="stage-detail" id="stageDetail"><!-- filled by JS --></div>
-    </section>
-
-    <!-- ---------- 04 OPERATORS ---------- -->
-    <section id="operators" class="view">
-      <div class="eyebrow">04 — The Operators</div>
-      <h1>Two operators <span class="grad">carry the load</span></h1>
-      <p class="lead">Both sources share the same shape; the differences live in the callables passed in.</p>
-
-      <div class="tabs" id="opTabs">
-        <button class="active" data-tab="op1">PandasOperator</button>
-        <button data-tab="op2">MinioPandasToPostgres</button>
+      <div class="prob" data-prob="p3">
+        <span class="n">3</span>
+        <div>
+          <b>Two protocols</b>
+          <p>One source is an authenticated REST API; the other is a directory listing plus per-file CSV fetches. One operator cannot serve both.</p>
+        </div>
       </div>
 
-      <div class="tabpanel active" id="op1">
-        <p><strong>Composition:</strong> <code>input_callable → [transform_callable] → output_callable</code>.
-           The only contract is “DataFrame in, DataFrame out.” Both sources share this operator;
-           swapping <code>pd.read_json</code> for <code>pd.read_parquet</code> is a keyword change, not a rewrite.</p>
-<pre><code><span class="k">class</span> <span class="f">PandasOperator</span>(BaseOperator):
-    template_fields = (
-        <span class="s">"_input_callable_kwargs"</span>,
-        <span class="s">"_transform_callable_kwargs"</span>,
-        <span class="s">"_output_callable_kwargs"</span>,
-    )
-
-    <span class="k">def</span> <span class="f">execute</span>(self, context):
-        df = self._input_callable(**self._input_callable_kwargs)
-        logging.info(<span class="s">"Read DataFrame with shape: %s."</span>, df.shape)
-
-        <span class="k">if</span> self._transform_callable:
-            df = self._transform_callable(df, **self._transform_callable_kwargs)
-            logging.info(<span class="s">"Shape after transform: %s."</span>, df.shape)
-
-        self._output_callable(df, **self._output_callable_kwargs)</code></pre>
-      </div>
-
-      <div class="tabpanel" id="op2">
-        <p><strong>Idempotency primitive.</strong> Loads a processed Parquet object into Postgres with a
-           single transaction wrapping DELETE-then-INSERT. Re-running the 14:15 interval deletes the
-           14:15 slice and re-inserts it — <em>atomically</em>.</p>
-<pre><code>df[<span class="s">"airflow_execution_date"</span>] = pd.Timestamp(
-    context[<span class="s">"data_interval_start"</span>].timestamp(), unit=<span class="s">"s"</span>
-)
-
-engine = PostgresHook(postgres_conn_id=<span class="s">"result_db"</span>).get_sqlalchemy_engine()
-
-<span class="k">with</span> engine.begin() <span class="k">as</span> conn:            <span class="c"># one transaction</span>
-    conn.execute(
-        <span class="s">f"DELETE FROM {table} "</span>
-        <span class="s">f"WHERE airflow_execution_date='{ts}';"</span>
-    )
-    df.to_sql(table, con=conn, index=False, if_exists=<span class="s">"append"</span>)</code></pre>
-        <div class="callout good">
-          <strong>Why it matters:</strong> DELETE + INSERT as two separate statements can leave the
-          serving table empty for an interval if the second one fails. Wrapping both in
-          <code>with engine.begin()</code> makes per-run replacement atomic — the rerun guarantee.
+      <div class="prob" data-prob="p4">
+        <span class="n">4</span>
+        <div>
+          <b>Idempotent reruns</b>
+          <p>Re-running the 14:15 interval must not duplicate rows, and must not depend on how many times it has already run.</p>
         </div>
       </div>
     </section>
 
-    <!-- ---------- 05 IDEMPOTENCY ---------- -->
-    <section id="idempotency" class="view">
-      <div class="eyebrow">05 — Scheduling &amp; Idempotency</div>
-      <h1>Every run <span class="grad">knows its own interval</span></h1>
-      <p class="lead">Interval-scoped execution is what makes the whole pipeline re-runnable.</p>
+    <!-- ---------- COLUMN 2 : SOLUTION ---------- -->
+    <section class="panel">
+      <h2>The Solution <span class="tag">— raw → processed → serving</span></h2>
 
-<pre><code>schedule = CronDataIntervalTimetable(<span class="s">"*/15 * * * *"</span>, <span class="s">"UTC"</span>)
-start_date = pendulum.today(<span class="s">"UTC"</span>).add(days=-1)
-catchup = <span class="k">False</span></code></pre>
+      <div class="stages">
 
-      <div class="grid g3" style="margin-top:12px">
-        <div class="card">
-          <div class="tagline">Filenames</div>
-          <h4>Deterministic keys</h4>
-          <p><code>raw/citibike/{{ data_interval_start | ts_nodash }}.json</code> — re-runs land on the
-             same key and overwrite (<code>replace=True</code>) instead of accumulating.</p>
+        <div class="stage">
+          <span class="ico">🌐</span>
+          <div>
+            <b>Sources <em>· outside the DE boundary</em></b>
+            <p>A mock Flask API and a mock nginx file share stand in for the real upstreams.</p>
+          </div>
         </div>
-        <div class="card">
-          <div class="tagline">Filtering</div>
-          <h4>Taxi mtime window</h4>
-          <p><code>_download_taxi_data</code> only fetches files whose <code>mtime</code> falls inside
-             <code>[data_interval_start, data_interval_end)</code> — not the whole directory listing.</p>
+
+        <div class="arrow"></div>
+
+        <div class="stage" id="s-raw" data-solves="p1">
+          <span class="ico">📦</span>
+          <div>
+            <b>Raw · MinIO <em>· source of record</em></b>
+            <p>Byte-for-byte source output. Because taxi deletes after 59 min, <strong>this is the only copy of that window</strong> — re-processing never re-hits the API.</p>
+          </div>
         </div>
-        <div class="card">
-          <div class="tagline">Serving</div>
-          <h4>Idempotency key</h4>
-          <p>The <code>airflow_execution_date</code> column makes per-run DELETE + INSERT safe to
-             repeat any number of times.</p>
+
+        <div class="arrow"></div>
+
+        <div class="stage">
+          <span class="ico">🔧</span>
+          <div>
+            <b>Processed · MinIO <em>· conformed Parquet</em></b>
+            <p>Both sources reduced to the same five columns: <span class="mono">tripduration, starttime, start_location_id, stoptime, end_location_id</span>.</p>
+          </div>
         </div>
+
+        <div class="arrow"></div>
+
+        <div class="stage">
+          <span class="ico">🗄️</span>
+          <div>
+            <b>Serving · Postgres <em>· result_db</em></b>
+            <p><span class="mono">taxi_rides</span> and <span class="mono">citi_bike_rides</span>, every row tagged with <span class="mono">airflow_execution_date</span>. The DE work ends here.</p>
+          </div>
+        </div>
+
       </div>
 
-      <div class="callout">
-        <strong>Why <code>catchup=False</code>?</strong> The raw layer is append-only and the taxi
-        source cannot be backfilled anyway — historical runs have nothing to catch up on.
+      <div class="lake">
+        <span class="c"># keys are the interval that produced them</span><br>
+        datalake/raw/{citibike,taxi}/…<br>
+        datalake/processed/{citibike,taxi}/…
       </div>
     </section>
 
-    <!-- ---------- 06 CREDIT ---------- -->
-    <section id="credit" class="view">
-      <div class="eyebrow">06 — Source &amp; Credit</div>
-      <h1>Standing on <span class="grad">Chapter 13</span></h1>
+    <!-- ---------- COLUMN 3 : MECHANISMS ---------- -->
+    <section class="panel">
+      <h2>How It's Built <span class="tag">— four mechanisms</span></h2>
 
-      <div class="credit">
-        <blockquote>
-          This project is a heavily modified, production-shaped version of Chapter 13 of
-          <em>Data Pipelines with Apache Airflow, Second Edition</em>.
-          <cite>— Bastiaan Harenslak, Julian de Ruiter, Ismael Cabral, Kris Geusebroek,
-          and Daniel van der Ende · Manning, 2026</cite>
-        </blockquote>
+      <div class="mech" id="s-sched" data-solves="p4">
+        <b>Interval-matched scheduling</b>
+        <p><span class="mono">CronDataIntervalTimetable("*/15 * * * *", "UTC")</span>. <span class="mono">data_interval_start</span> becomes the object key, the taxi <span class="mono">mtime</span> filter, and the idempotency key.</p>
+      </div>
 
-        <p><strong>What Chapter 13 supplied:</strong> the NYC taxi vs. Citi Bike use case, the
-           <code>PandasOperator</code> composition pattern, the <code>MinioPandasToPostgres</code>
-           idea, the raw/processed zoning in object storage, and the idempotent DELETE + INSERT
-           concept.</p>
+      <div class="mech" id="s-pandas" data-solves="p3">
+        <b>PandasOperator</b>
+        <p><span class="mono">input → [transform] → output</span>. The only contract is "DataFrame in, DataFrame out", so both protocols share one operator — the difference lives in the callables.</p>
+      </div>
 
-        <p><strong>What this project adds:</strong> a real Airflow 3.1.2 deployment with
-           CeleryExecutor, DAG processor and triggerer; atomic DELETE + INSERT via
-           <code>with engine.begin()</code>; interval-matched taxi <code>mtime</code> filtering;
-           connections declared through environment variables rather than hard-coded in the DAG;
-           a DAG-integrity CI gate; an explicit data contract; and a deployment run-book covering
-           the Codespaces <code>iptables-legacy</code> networking trap.</p>
+      <div class="mech" id="s-conform" data-solves="p2">
+        <b>Conformance join</b>
+        <p><span class="mono">geopandas.sjoin</span> maps Citi Bike station points onto NYC taxi zone polygons, giving both sources the same location unit.</p>
+      </div>
 
-        <div class="callout good">
-          <strong>Where the data engineering actually lives:</strong> the ingestion logic, the DAG,
-          the two custom operators, the data contracts, the raw/processed layering, the conformance
-          join, and the idempotent serving primitive. The mock source systems and the consumer
-          frontend are scaffolding — deliberately out of scope here.
-        </div>
+      <div class="mech" id="s-pg" data-solves="p4">
+        <b>Atomic replacement</b>
+        <p><span class="mono">with engine.begin():</span> DELETE the interval's slice, then INSERT the new one in a single transaction — a rerun replaces, never duplicates.</p>
       </div>
     </section>
 
   </main>
-</div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer>
+    <span class="k">Credit</span>
+    <span>
+      Derived from <b>Chapter 13</b> of <i>Data Pipelines with Apache Airflow, Second Edition</i> —
+      Harenslak, de Ruiter, Cabral, Geusebroek &amp; van der Ende (Manning, 2026).
+      The use case, the <span class="mono">PandasOperator</span> pattern, the
+      <span class="mono">MinioPandasToPostgres</span> idea, and the raw/processed zoning convention come from the book.
+    </span>
+  </footer>
 
 <script>
 (function(){
   "use strict";
 
-  /* ---------- THEME TOGGLE ---------- */
-  var root = document.documentElement;
-  var themeBtn = document.getElementById('themeBtn');
-  var saved = (function(){ try { return localStorage.getItem('readme-theme'); } catch(e){ return null; } })();
-  if (saved) root.setAttribute('data-theme', saved);
-  themeBtn.addEventListener('click', function(){
-    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    root.setAttribute('data-theme', next);
-    try { localStorage.setItem('readme-theme', next); } catch(e){}
-  });
-
-  /* ---------- VIEW SWITCHER ---------- */
-  var navButtons = document.querySelectorAll('#nav button');
-  navButtons.forEach(function(btn){
-    btn.addEventListener('click', function(){
-      navButtons.forEach(function(b){ b.classList.remove('active'); });
-      document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
-      btn.classList.add('active');
-      var view = document.getElementById(btn.dataset.view);
-      if (view) view.classList.add('active');
-    });
-  });
-
-  /* ---------- PIPELINE STAGE DETAIL ---------- */
-  var STAGES = {
-    sources: {
-      title: 'Sources — two contracts, two protocols',
-      body: 'One source is an authenticated REST API returning a JSON list of rides. The other is a plain directory listing serving one CSV per 15-minute window. Neither can be fetched the same way, and only one of them can be re-fetched later.',
-      points: [
-        'Citi Bike: GET /recent/minute/15 — HTTP Basic, JSON, lat/lon station coordinates',
-        'Taxi: GET / returns a JSON file listing; each CSV covers 15 minutes of zone-to-zone trips',
-        'Retention asymmetry: Citi Bike is backfillable, taxi files are gone after 59 minutes',
-        'Both tick every 15 minutes — the DAG schedule is matched to that cadence'
-      ]
-    },
-    raw: {
-      title: 'Raw layer — MinIO, the source of record',
-      body: 'Whatever the source returned, byte for byte, written to datalake/raw/. Nothing is parsed or modified here. This layer exists because the taxi source deletes files after 59 minutes — for that window, this is the only copy that will ever exist.',
-      points: [
-        'raw/citibike/{YYYYMMDDTHHMMSS}.json — keyed by data_interval_start',
-        'raw/taxi/{MM-DD-YYYY-HH-MM-SS}.csv — original filenames preserved',
-        'Written with replace=True so re-runs overwrite instead of accumulating',
-        'Because it is append-only and deterministic, process_* can be re-run without re-hitting the API'
-      ]
-    },
-    processed: {
-      title: 'Processed layer — conformed Parquet',
-      body: 'This is where the two sources are forced into the same shape. Citi Bike coordinates are mapped into taxi zone IDs via a spatial join; taxi timestamps are normalised into a duration. The output columns are identical between the two, which is what makes them comparable at all.',
-      points: [
-        'processed/citibike/{ts}.parquet — tripduration, starttime, start_location_id, stoptime, end_location_id',
-        'processed/taxi/{ts}.parquet — the same five columns, the same types',
-        'Citi Bike: geopandas.sjoin of station points against NYC taxi zone polygons',
-        'Taxi: pickup/dropoff datetime → starttime/stoptime, tripduration computed in seconds'
-      ]
-    },
-    serving: {
-      title: 'Serving layer — result_db (Postgres)',
-      body: 'Two tables a consumer can trust. Every row carries airflow_execution_date, which is what makes per-run replacement idempotent: re-running an interval deletes that interval’s slice and re-inserts it inside a single transaction.',
-      points: [
-        'taxi_rides (tripduration, starttime, start_location_id, stoptime, end_location_id, airflow_execution_date)',
-        'citi_bike_rides — identical schema',
-        'DELETE + INSERT wrapped in with engine.begin() as conn: → atomic',
-        'The data engineering ends here; everything downstream is consumption'
-      ]
-    }
+  var SOLUTIONS = {
+    p1: ["s-raw"],
+    p2: ["s-conform"],
+    p3: ["s-pandas"],
+    p4: ["s-sched", "s-pg"]
   };
 
-  var detail = document.getElementById('stageDetail');
-  var stages = document.querySelectorAll('.stage');
-
-  function renderStage(key){
-    var s = STAGES[key];
-    if (!s || !detail) return;
-    detail.innerHTML =
-      '<h4>' + s.title + '</h4>' +
-      '<p>' + s.body + '</p>' +
-      '<ul>' + s.points.map(function(p){ return '<li>' + p + '</li>'; }).join('') + '</ul>';
+  function highlightSolutions(probKey, on){
+    (SOLUTIONS[probKey] || []).forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.classList.toggle("hl", on);
+    });
   }
 
-  stages.forEach(function(st){
-    st.addEventListener('click', function(){
-      stages.forEach(function(x){ x.classList.remove('active'); });
-      st.classList.add('active');
-      renderStage(st.dataset.stage);
-    });
-  });
-  renderStage('sources');
-
-  /* ---------- OPERATOR TABS ---------- */
-  var tabButtons = document.querySelectorAll('#opTabs button');
-  tabButtons.forEach(function(btn){
-    btn.addEventListener('click', function(){
-      tabButtons.forEach(function(b){ b.classList.remove('active'); });
-      btn.classList.add('active');
-      document.querySelectorAll('#operators .tabpanel').forEach(function(p){ p.classList.remove('active'); });
-      var panel = document.getElementById(btn.dataset.tab);
-      if (panel) panel.classList.add('active');
-    });
+  /* Hover a problem → light up the mechanism(s) that solve it */
+  document.querySelectorAll("[data-prob]").forEach(function(el){
+    var key = el.dataset.prob;
+    el.addEventListener("mouseenter", function(){ highlightSolutions(key, true); });
+    el.addEventListener("mouseleave", function(){ highlightSolutions(key, false); });
   });
 
+  /* Hover a solution element → light up the problem it solves */
+  document.querySelectorAll("[data-solves]").forEach(function(el){
+    var keys = el.dataset.solves.split(/\s+/);
+    el.addEventListener("mouseenter", function(){
+      keys.forEach(function(k){
+        var t = document.querySelector('[data-prob="' + k + '"]');
+        if (t) t.classList.add("hl");
+      });
+    });
+    el.addEventListener("mouseleave", function(){
+      keys.forEach(function(k){
+        var t = document.querySelector('[data-prob="' + k + '"]');
+        if (t) t.classList.remove("hl");
+      });
+    });
+  });
 })();
 </script>
 </body>

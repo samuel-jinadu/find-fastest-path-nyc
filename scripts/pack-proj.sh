@@ -102,6 +102,7 @@ find . \
         ! -name "pack-proj.sh" \
         ! -name "push.sh" \
         ! -name "uv.lock" \
+        ! -name "pytest.ini" \
         ! -name "*.cfg" \
         -exec sh -c 'echo "--- $1 ---"; cat "$1"' _ {} \; \
     \) \
